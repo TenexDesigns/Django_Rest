@@ -1,4 +1,191 @@
 
+
+
+from decimal import Decimal
+from rest_framework import serializers
+
+from store.models import Product,Collection
+
+class ProductSerializer(serializers.Serializer):
+ 
+  
+    id = serializers.IntegerField()
+    title = serializers.CharField(max_length =255)
+    collection = serializers.PrimaryKeyRelatedField(
+         queryset = Collection.objects.all()
+     )
+
+
+
+    
+    The result on the web page is this
+    
+        {
+        "id": 648,
+        "title": "7up Diet, 355 Ml",
+        "price": 79.07,
+        "collection": 5                                    ----> This is the resulting collection
+    },
+
+
+
+THERE IS ANOTHER WAY, WHERE WE RETURN A COLLECTION AS A STRING.
+
+
+
+
+
+from decimal import Decimal
+from rest_framework import serializers
+
+from store.models import Product,Collection
+
+class ProductSerializer(serializers.Serializer):
+ 
+  
+    id = serializers.IntegerField()
+    title = serializers.CharField(max_length =255)
+    collection = serializers.StringRelatedField()
+
+
+
+
+    
+    
+    But for this to work propery, we have to go to the  Views file and get the related field from the collection model
+    
+@api_view()
+def product_list(request):
+    queryset = Product.objects.select_related('collection').all()
+    serializer = ProductSerializer(queryset, many =True)
+
+    return Response(serializer.data)
+
+
+
+
+
+
+
+HERE WE CAN USE NESTED OBJECTS
+
+In the serialization file
+
+
+class Collectionserilaizer(serializers.Serializer):
+    id =serializers.IntegerField()
+    title = serializers.CharField(max_length=255)
+    
+    
+    
+
+
+class ProductSerializer(serializers.Serializer):
+  
+    id = serializers.IntegerField()
+    title = serializers.CharField(max_length =255)
+    collection = Collectionserilaizer()
+    
+    
+    
+    
+ But for this to have worked , we nneded to have the selected field chosen 
+in the views file
+
+
+
+@api_view()
+def product_list(request):
+    queryset = Product.objects.select_related('collection').all(
+    serializer = ProductSerializer(queryset, many =True)
+
+    return Response(serializer.data)
+
+
+
+
+
+The result is this
+      
+      {
+        "id": 78,
+        "title": "Bagelers",
+        "price": 82.37,
+        "collection": {
+            "id": 4,
+            "title": "Cleaning"
+        }
+    },
+
+
+
+
+THERE IS ALSO THE HYPERLINKED WAY.
+      
+
+      
+ class ProductSerializer(serializers.Serializer):
+
+    id = serializers.IntegerField()
+    title = serializers.CharField(max_length =255)     
+        collection = serializers.HyperlinkedRelatedField(
+        queryset = Collection.objects.all(),
+        view_name='collection-detail',
+        lookup_field='pk'
+
+    )
+
+
+In the url file
+      urlpatters[
+          path('collections/<int:pk>',views.collection_detail,name='collection_detail')
+]
+
+
+In the views file
+      @api_view()
+def product_list(request):
+    queryset = Product.objects.select_related('collection')
+    serializer = ProductSerializer(queryset, many =True,context={'request':request})
+
+    return Response(serializer.data)
+      
+      and
+      
+      @api_view()
+def collection_detail(request,pk):
+    return Response('ok')
+    
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+HERE IS MORE EXPLANATION      
+*************************************************************************************************************************************************************
+
+
+
+
 serializing relationships in django rest framwork using 
 
                    Primary key, 
