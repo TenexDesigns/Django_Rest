@@ -5,6 +5,26 @@ If it is get, we serialize the data , if it is post , we desierialize the data
 
 
 
+Deserialization is the process of converting structured data (e.g. JSON, XML) into Python objects. 
+In Django Rest Framework (DRF), deserialization is typically done using serializers. Here are some common operations related to deserialization in DRF:
+
+Data Validation:
+When deserializing data, its important to ensure that the data is valid. DRF serializers provide a variety of built-in validators that can be 
+used to enforce data validation rules. These validators include things like validating field types, checking field lengths,
+and verifying uniqueness constraints.
+
+Saving Objects:
+After deserializing data, you typically want to save the data as a new object in your database.
+To do this, you can use the serializer create method. This method takes the deserialized data and creates a new object instance in the database.
+
+Updating Objects:
+If you want to update an existing object in the database, you can use the serializers update method.
+This method takes an existing object instance and the deserialized data, and updates the object with the new data.
+
+Deleting Objects:
+To delete an object from the database, you can use the delete method on the object instance.
+
+Overall, DRF serializers provide a powerful and flexible way to handle deserialization and data validation in your Django projects.
 
 
 
