@@ -100,10 +100,18 @@ class Product_details(RetrieveUpdateDestroyAPIView):
 Now, After doing this, We have to go back to our urls file and regester this model set
 
 
+from django.urls import include, path
+from rest_framework import routers
+from .views import Books
+
+router = routers.DefaultRouter()
+router.register(r'product', views.products)
+
+urlpatterns = [
+    path(r'', include(router.urls)),
+]
 
 
-router = SimpleRouter()
-router.register('Product',views.ProductViewSet())
 
 
 
