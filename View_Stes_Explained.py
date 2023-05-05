@@ -4,7 +4,40 @@ Instead of writing separate views for each CRUD operation, viewsets provide a mo
 
 To use viewsets, we also need to define a router to map the URLs to the appropriate views.
 Here is an example of how to define a viewset and router for a simple Book model:
+    
+    
+    TYPES OF VIEWSETS
+    
+    In Django Rest Framework, a ViewSet is a high-level abstraction that allows developers to combine common
+    functionality for multiple views into a single class. A ViewSet can handle a variety of HTTP methods, 
+    including GET, POST, PUT, PATCH, and DELETE, among others.
 
+There are several types of ViewSets in Django Rest Framework, including:
+
+1.ModelViewSet: This provides CRUD (Create, Retrieve, Update, Delete) operations for a Django model. It is a combination of APIView, ListModelMixin, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, and DestroyModelMixin.
+
+2.ReadOnlyModelViewSet: This provides only read operations (i.e. GET) for a Django model. It is a combination of APIView, ListModelMixin, and RetrieveModelMixin.
+
+3.GenericViewSet: This is a ViewSet that doesn't provide any default implementations of actions, and expects the developer to explicitly define the actions that they want to support. It is a combination of APIView and ViewSetMixin.
+
+4.ViewSet: This is a ViewSet that provides basic CRUD (Create, Retrieve, Update, Delete) operations. It is a combination of APIView and ViewSetMixin.
+
+    
+    To wire up the ViewSet to URLs, we can use a Router and register the ViewSet as a resource:
+
+python
+Copy code
+from rest_framework.routers import DefaultRouter
+
+router = DefaultRouter()
+router.register(r'my-viewset', MyViewSet, basename='my-viewset')
+urlpatterns = router.urls
+This will automatically generate the URLs for the ViewSet, including routes for the different HTTP methods.
+    
+    
+    
+    
+    ----------
 
 
 from rest_framework import viewsets, routers
