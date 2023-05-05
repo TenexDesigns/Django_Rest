@@ -138,25 +138,195 @@ class ProductList(ModelViewSet):
 
 
 
+WE CAN EVEN ADD SEARCHING CAPABILITIES, BASED ON OUR DESIERED FIELDS
+*****************************************************************************************************************************************************
+Our search box , will look for items based on their titl and descriptiopn. This search is case insensitive
+We can even add related fields of the product, e.g 'collection__title'
+
+
+
+
+from django_filters.rest_framework import DjangoFilterBackend,FilterSet
+from rest_framework.filters import SearchFilter
+from store.models import Product,Collection
 
 
 
 
 
+class ProductList(ModelViewSet):
+      queryset = Product.objects.all()
+      serializer_class = ProductSerializer
+      filter_backends = [DjangoFilterBackend,SearchFilter]
+      filterset_class = ProductFilter
+      search_fields = ['title','description']
+      
 
 
 
 
 
+WE CAN EVEN ADD SORTING CAPABILITIES
+*****************************************************************************************************************************************************
+Here we import OrderingFilter from the filters in rest_framwork, then we specify the fields we want 
+
+
+
+
+from django_filters.rest_framework import DjangoFilterBackend,FilterSet
+from rest_framework.filters import SearchFilter,OrderingFilter
+from store.models import Product,Collection
 
 
 
 
 
+class ProductList(ModelViewSet):
+      queryset = Product.objects.all()
+      serializer_class = ProductSerializer
+      filter_backends = [DjangoFilterBackend,SearchFilter,OrderingFilter]
+      filterset_class = ProductFilter
+      search_fields = ['title','description']
+      ordering_fields = ['unit_price','last_update']
 
 
 
 
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
 
 
 
