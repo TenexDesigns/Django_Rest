@@ -25,8 +25,8 @@ class CartItemSerializer(serializers.ModelSerializer):
 
 
 class CartSerializer(serializers.ModelSerializer):
-    id = serializers.UUIDField(read_only=True)
-    items = CartItemSerializer(many=True, read_only=True)
+    id = serializers.UUIDField(read_only=True)  // The read only is to ensure that the id is not modifieble, and that it is not seen in the web page when modifyng the  cartItem
+    items = CartItemSerializer(many=True, read_only=True) // The readonly is to ensy=ure the  item is not visisblle when modfying the cart item, or when the apin using this view set  being modfied.
     total_price = serializers.SerializerMethodField()
 
     def get_total_price(self, cart):
