@@ -20,7 +20,7 @@ class CartItemSerializer(serializers.ModelSerializer):
     class AddCartItemSerializer(serializers.ModelSerializer):
     product_id = serializers.IntegerField()                            // tHIS MEANS THAT THIS FIELD IS ADDED DYNAMICALY.i.E iT IS NOT IN THE DATABASE, SO WE HAVE TO ECIVE IT FROM THE USER. hERE WE SPECIFY WE WANT TO RECEIVE AN INTGER FIELD FROM THE USER
 
-    def validate_product_id(self, value):
+    def validate_product_id(self, value):   // This is the convection to make validatios, start with validte, then the name of what you want to validate, We use this to validte and through an error if the passed product does not exist in the datatbase.
         if not Product.objects.filter(pk=value).exists():
             raise serializers.ValidationError('No product with the given ID was found.')
         return value
