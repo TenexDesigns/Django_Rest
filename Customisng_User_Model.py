@@ -67,7 +67,7 @@ Its best to plan the user model customization before starting the project to avo
 
 
 
-MORE EXPLAANTION
+MORE EXPLAANTION  ---EXTENDING USER MODEL
 ****************************************************************************************************************
 
 IN OUR PROJECT, WE DECIDE TO CREATE A CORE APP THAT WILL HAVE THE EXTED USERS MODEL. This core app will be specific to our project , and it is where we can write changes that can affect the whol e project and where we can write code that can be we can bepend upone from other app in the project , since this app is specific to our project and its app
@@ -129,16 +129,62 @@ class LikedItem(models.Model):
 
 
 
+MORE EXPLAANTION  ---CREATINP USER PROFILE MODEL
+****************************************************************************************************************
+
+In our app the user profile mdoel can be any model that cotains information that can be assosciated with aour users,
+Then we can  create a one to one field between that model and our usr model without touching the uer model
+In pur projct we have the customers model , that can be associated with our user model
 
 
+INITIALIY THIS I WHAT IT LOOKED LIKE, But since we have first and last name in the user model, why not use those fist and last names insteds, So we remove first and last name and use those in the user model
+class Customer(models.Model):
+    first_name = models.CharField(max_length=255)
+    last_name = models.CharField(max_length=255)
+    email = models.EmailField(unique=True)
+    phone = models.CharField(max_length=255)
+    birth_date = models.DateField(null=True, blank=True)
+    membership = models.CharField(
+        max_length=1, choices=MEMBERSHIP_CHOICES, default=MEMBERSHIP_BRONZE)
 
+    def __str__(self):
+        return f'{self.first_name} {self.last_name}'
 
+    class Meta:
+        ordering = ['first_name', 'last_name']
 
+THIS IS THE RESULT. In the customer mdoel we can access the fiet name like self.user.first_name. This changes how we order the first name and last name in the prevoisu code 
+class Customer(models.Model):
+    phone = models.CharField(max_length=255)
+    birth_date = models.DateField(null=True, blank=True)
+    membership = models.CharField(
+        max_length=1, choices=MEMBERSHIP_CHOICES, default=MEMBERSHIP_BRONZE)
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
+Due to the change in how we refer to first and las  name we have to amke the follwing changes
 
+class Customer(models.Model):
+    phone = models.CharField(max_length=255)
+    birth_date = models.DateField(null=True, blank=True)
+    membership = models.CharField(
+        max_length=1, choices=MEMBERSHIP_CHOICES, default=MEMBERSHIP_BRONZE)
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return f'{self.user.first_name} {self.user.last_name}'
 
+    @admin.display(ordering='user__first_name')         ----> This si to tell the first_name column to be ordered using the first name
+    def first_name(self):                        --------------> This is to make the first_name in the admin site is seeen 
+        return self.user.first_name
 
+    @admin.display(ordering='user__last_name')            ----> This si to tell the last_name column to be ordered using the last name
+    def last_name(self):                     --------------> This is to make the last_name in the admin site is seeen 
+        return self.user.last_name
+
+    class Meta:
+        ordering = ['user__first_name', 'user__last_name']
 
 
 
