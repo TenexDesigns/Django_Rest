@@ -153,6 +153,259 @@ urlpatterns = [
 
 
 
+3. REGESTERING NEW USERS
+
+When we go to the users endpoint e.g
+
+
+
+http::localhost/auth/users
+
+    We can not send a get request to this end point with out authenticating first.
+    However this endpoint has a Post request that is open to anonymous users, who can create an acount 
+    So to regester a user , this end point sends a post reueest to that endpoint.
+    The default form to be filled contains the email username and password.
+    But what if we want to capture more information about the user like first name and last name
+    To d that we will needd to go to djosers serliazer and customise it
+    
+    there are the default serilazers used by djoser to perform some operations, but using the settings module , we can easily relace this serialzer with our custom serializer
+    DJOSER DEFAULT SERIALZERS FOR VARIOUS OPERATIONS
+    {
+    'activation': 'djoser.serializers.ActivationSerializer',
+    'password_reset': 'djoser.serializers.SendEmailResetSerializer',
+    'password_reset_confirm': 'djoser.serializers.PasswordResetConfirmSerializer',
+    'password_reset_confirm_retype': 'djoser.serializers.PasswordResetConfirmRetypeSerializer',
+    'set_password': 'djoser.serializers.SetPasswordSerializer',
+    'set_password_retype': 'djoser.serializers.SetPasswordRetypeSerializer',
+    'set_username': 'djoser.serializers.SetUsernameSerializer',
+    'set_username_retype': 'djoser.serializers.SetUsernameRetypeSerializer',
+    'username_reset': 'djoser.serializers.SendEmailResetSerializer',
+    'username_reset_confirm': 'djoser.serializers.UsernameResetConfirmSerializer',
+    'username_reset_confirm_retype': 'djoser.serializers.UsernameResetConfirmRetypeSerializer',
+    'user_create': 'djoser.serializers.UserCreateSerializer',
+    'user_create_password_retype': 'djoser.serializers.UserCreatePasswordRetypeSerializer',
+    'user_delete': 'djoser.serializers.UserDeleteSerializer',
+    'user': 'djoser.serializers.UserSerializer',
+    'current_user': 'djoser.serializers.UserSerializer',
+    'token': 'djoser.serializers.TokenSerializer',
+    'token_create': 'djoser.serializers.TokenCreateSerializer',
+}
+    
+    
+
+TO CUSTOMISE OUR SERIALIZER OF DJOSE, WE CAN DO THAT IN OUR CORE APP OF THE PROJECT, SINCE THE CHANGES ARE REFLECTED ON THE ENTIRE APP
+
+(1)we are customising this  'user_create': 'djoser.serializers.UserCreateSerializer', and so we customise it here below, and then we tell djoser to use the customised versuin in the settings,py file
+
+#core App
+serialzer.py
+
+
+from djoser.serializers import UserCreateSerializer as BaseUserCreateSerializer   --> Here we give an alias to the User create
+
+
+class UserCreateSerializer(BaseUserCreateSerializer):
+    class Meta(BaseUserCreateSerializer.Meta):             ---> We inherit the implenation of theMeta class and just customise it to display our desired fields
+        fields = ['id','username','password','email','first_name','last_name']
+
+        
+        
+(2)  and then we tell djoser to use the customised versuin in the settings,py file      
+
+#Project settings
+
+settings.py
+
+
+
+
+
+DJOSER ={
+    'SERIALIZER':{
+        'user_create':'core.serializer.UserCreateSerializer'              // Here we pass in our custome created USerCreateSeialazr to djoser by giving it the path to that  serialzer//We got user-ceate  from 'user_create': 'djoser.serializers.UserCreateSerializer', which was the default implenetaion of djoser
+    }
+}
+
+
+
+LOGGING IN  OR AUTHENTICATING USERS
+
+
+To Log in wee neeed an access token
+We go to the link ending with this , e.g 
+
+ We have thses three end poits for uthenticating users
+ /jwt/create/ (JSON Web Token Authentication)   --> To create a new token, this is the logging endpoint
+/jwt/refresh/ (JSON Web Token Authentication)
+/jwt/verify/ (JSON Web Token Authentication)
+
+
+
+
+
+
+ON GOING TO THIS END POINT AND LOGGGING IN WITH THE VALID CREDENTILAS, WE GET A REFRESH TOKEN , VALID FOR ONE DAYAND AND AN ACCESS TOKEN  VALID FOR 5 MINUTES
+Access token is used fr accessing secure api end points , and the refresh token is used for getting a new accesss token when the access token expires
+We can easily overide the lifespan of the access and refesh tokens  like here below in the settiings .py file of the project
+
+
+
+Settings.py
+
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
+}
+
+
+THAT IS HOW LOGGING WORKS 
+
+
+http::localhost/auth /jwt/create/   --> We go to this end point, log in usung valid credentilas and then get the access and refreshtokes , which we can store on the client
+
+    TOKEN STOREGE IS DEFFERENT DEPENDING ON WHAT FRAMEOK YOU ARE USIG ON THE FRONT END
+    FOR WEB APPS , WE USE JAVASCRIPT TO STORE TOKENS INSIDE THE BROWERES LOCAL STORAGE
+    FOR MOBILE APPS TOKEN STOREAGE IS DIFFEENT BASED ON THE IMPLENETATION YOU ARE USING
+    TO LOG OUT, ALL WE HAVE TO DO IS REMOVE THE TOKENS FROM THE LOCAL CLIENT ,NOTHING ELSE, THERE ARE NO END POINTS WE ARE GOING TO CALLL TO LOG OUT THEUSER
+
+
+
+WAYS OF STORING THE JSON WEB TOKES
+
+
+
+
+When it comes to storing tokens for accessing a web application, there are several common approaches you can consider:
+
+Local Storage: You can store the token on the client-side using the browser's local storage or session storage. This approach allows the token to persist across browser sessions, but it is susceptible to cross-site scripting (XSS) attacks. To mitigate this risk, make sure to handle the storage securely and avoid storing sensitive information in the token.
+
+Cookies: Another option is to store the token in an HTTP-only cookie. By setting the HttpOnly flag, you can prevent client-side scripts from accessing the cookie, thus reducing the risk of XSS attacks. Additionally, you can set the Secure flag to ensure the cookie is only sent over HTTPS.
+
+Token in Authorization Header: Instead of storing the token directly, you can include it in the Authorization header of each request. This approach is typically used with the "Bearer" token scheme. The token is sent as Authorization: Bearer <token> in the request headers. With this method, you don't need to store the token explicitly, but you will need to send it with each request.
+
+Server-Side Session: If you want to handle tokens on the server-side, you can store them in a session object or a database. Instead of relying on the client to present the token, the server associates the token with a user session on the server. This approach can be useful if you want more control over token management and revocation.
+
+Token-based Storage Services: You can utilize token-based storage services, such as OAuth 2.0 providers like Auth0 or Firebase Authentication. These services handle token storage and management for you, allowing you to focus on integrating their authentication mechanisms into your application.
+
+The choice of token storage mechanism depends on various factors such as the level of security required, the nature of your application, and your specific use case. Remember to consider the security implications and best practices for token storage, such as token expiration, revocation mechanisms, and secure transmission over HTTPS.
+
+
+
+
+
+REFRESHING THE TOKEN
+
+We can  us the refresh end point to refresh an get a neww access point it the access poit expires
+
+e.g Refresh --> eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjg0MjI1NzQ1LCJpYXQiOjE2ODQxMzkyODcsImp0aSI6IjcyODJjNTNiMGQzMzQ5MWZiNTVmNGNjYjY5NzY2ODMxIiwidXNlcl9pZCI6MX0.tlD5DCfqLvZGXF0M9U1Bm6qVF5ps0-OIwKq_PgpDAY4
+ then we will get a  new access token e.g access eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjg0MjI1NzQ1LCJpYXQiOjE2ODQxMzkyODcsImp0aSI6IjcyODJjNTNiMGQzMzQ5MWZiNTVmNGNjYjY5NzY2ODMxIiwidXNlcl9pZCI6MX0.tlD5DCfqLvZGXF0M9U1Bm6qVF5ps0-OIwKq_PgpDAY4
+  This new access token is valid for 5 mins by default but we can change the time in the settings.py file.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
