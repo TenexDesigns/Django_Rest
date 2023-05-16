@@ -60,17 +60,40 @@ def say_hello(request):
 Now you should always wrap the semad mail in a try block and send a BadHeader error incasee an atter trys to intercept the email and send a fake email to your client , so ur email will look somethoing like this
 
 
-from django.core.mail import mail_admins,mail_managers,send_mail,send_mass_mail
+from django.core.mail import mail_admins,mail_managers,send_mail,send_mass_mail,BadHeaderErooor
 from django.shortcuts import rende
 
 def say_hello(request):
-  send_mail('subject','message','gacau@gmail.com',['george@gmail.com'])
+ 
+ try:
+     send_mail('subject','message','gacau@gmail.com',['george@gmail.com'])
+  except BadHeaderError:
+      pass
     return render(request, 'hello.html', {'name': 'Mosh'})
 
 
 
 
+ATTACHING FILES
 
+
+To attach files we use the EmailMesssgae Method
+The email meessage method is depended upon by both send_mail, send_mass_mail , and all the other methods, it is the root of all of these
+
+
+
+from django.core.mail import EmailMessage
+from django.shortcuts import rende
+
+def say_hello(request):
+ 
+ try:
+     messge =EmailMessage('subject','message','gacau@gmail.com',['george@gmail.com'])
+     messgae.attach('playgroud/images/dog.jpg')
+     messgage.send()
+  except BadHeaderError:
+      pass
+    return render(request, 'hello.html', {'name': 'Mosh'})
 
 
 
