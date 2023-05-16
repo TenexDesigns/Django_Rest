@@ -97,6 +97,85 @@ def say_hello(request):
 
 
 
+   SENDING TEMPLATED EMAILS
+   
+   We install a packe called django-teplated-mail
+   
+   
+   Then we create a folder and clall it email in our app
+   Then we crate a html template inside ther e to represent our email
+   
+   r.g 
+   email/
+       hello.html
+    
+    {%block subject%}  This is the subkect   {% endblock%}  // We create a block for subject, message, body and closse the block
+    
+    
+    {%block text_body %}   
+    <h1> Hello <h2/> 
+    My name is {{name}}
+    
+    
+    {% endblock%}
+    
+    
+    
+    
+        {%block html_body %}    {% endblock%}
+    
+   
+   
+   
+   to send our email, we go back to our app view set 
 
+   
+   
+   from django.core.mail import EmailMessage
+from django.shortcuts import rende
+from templated_email.mail import BaseEmailMessage
+
+def say_hello(request):
+ 
+ try:
+  
+    messgae = BaseEmailMessage(template_name='hellow.html',
+   context={'name':'Georhe ' })   // We use this to pass data to ur html template
+  message.send(['george@gmail.com'])
+    
+  except BadHeaderError:
+      pass
+    return render(request, 'hello.html', {'name': 'Mosh'})
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
 
 
