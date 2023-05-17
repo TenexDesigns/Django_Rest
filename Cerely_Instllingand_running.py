@@ -63,34 +63,61 @@ CELERY_BROKER_URL = 'amqp://guest:guest@localhost:5672//'  # Replace with your b
     
  4. Next : Go to the __url__.py file of the project folder  and add this so tha dkjnvo can know about the ceraly   
 __init__.py File
-   from .celery import Celery
+   from .celery import app
     
+  
+                                       
+CREATING AN D EXCUTING LONG RUNNING TASKS USING CELERY
+  5.Create Tasks: Create a file called tasks.py in your Django app directory (the same directory where your models.py file is located). 
+   Define your Celery tasks in this file. For example:
     
-  5. Finally run the folliwng cimmand in the terminal  
+from time import sleep
+from celery import shared_task                         //tHE TASK HERE IS TO PRINT THE LINES 
+
+
+#This si how we define a task, now lets excute it
+@shared_task                                                   //This is how we tell clery to excute this task
+def notify_customers(message):
+    print('Sending 10k emails ...')
+    print(message)
+    sleep(10)                                                  // this task is delayed for 10 secondss
+    print('Emails were succesfully set !')
+
+#To excute this, we need to decorate it with one of the celery decolartors
+
+  
+ 
+ 6. Then we go to our view set to see and excute our task
+ 
+ 
+from django.shortcuts import render
+from .tasks import notify_customers
+
+
+def say_hello(request):
+    notify_customers.delay('Hello George Gacau')  // We call or excute the task by calling the delauy method on the task
+    return render(request, 'hello.html', {'name': 'Mosh'})  // This will not be rendered untlll the task is completed after 10 seconds, but that does not happen becuse this task is being performned on a worker in cerely, that worker is different fom the process that is renduing our site
+
+  
+    
+  5. Finally run the folliwng cimmand in the terminal  . This willl esure that the regetserdtasks will be given and discovered by celeray
   
          celery -A storefront worker --loglevel=info
+   
 celery -A [projectname]  [type of process we ant to strt(worker)] [and since we are testing and debugging (--logleve=info)]
 The above should look something like this
     
     
     
+   NOTE TAHT WE USE MESSAGGE BROKERS , BECUASE WE ARE ASSURED THAT THEY WILL DELIVER THE MESSAGES TO CLEERAY , EVEN IF CEREY IS TURNED OFF,
+   tHEY WILL DELIVER AND EXCUTE THOSE TASKS OR MESSAGES IN CELERY WHEN CELERY IS TURNED BACK ON
+   
+   
     
     MORE EXPLANATION HERE BELOW
     **************************************************
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+       
     
     
 
@@ -164,7 +191,8 @@ This mean  that celeray is ready
 also not that the above messga e stes that
 
 warnings.warn(Using settings.DEBUG leads to a memory
-It states this becuase currently we are in develepoment mode and debug is true, but i priduction. debug is false , adnd we are not going to have that warning
+It states this becuase currently we are in develepoment mode and debug is true, but i priduction. debug is false ,
+              adnd we are not going to have that warning
 
 
 
@@ -173,7 +201,8 @@ In the above message we can see this text
 - ** ---------- .> app:         storefront:0x18a4fff65c0    -> This is the name of our celery app
 - ** ---------- .> transport:   redis://localhost:6379/1    -> For transport , w have cerely connected to this redis instance
 - ** ---------- .> results:     disabled://
-- *** --- * --- .> concurrency: 4 (prefork)    --> $ infornt of concurency is the number of cpu core we are currently using, We have 4 crealy workers that are ready to pick up tasks
+- *** --- * --- .> concurrency: 4 (prefork)    --> $ infornt of concurency is the number of cpu core we are currently using,
+              We have 4 crealy workers that are ready to pick up tasks
 -- ******* ---- .> task events: OFF (en
 
  Ceraly is upp and running and nest we are going to see hoe to run tasks
@@ -181,9 +210,68 @@ In the above message we can see this text
 
 
 
+    MORE EXPLANATION HERE BELOW
+***************************************************************************************************************************8
 
 
+To run tasks in the background in a Django application using Celery on Windows, you can follow these steps:
 
+Install Celery: Start by installing Celery using pip. Open a command prompt or terminal and run the following command:
+
+pip install celery
+Configure Celery: Create a new file called celery.py in your Django project directory (the same directory where your manage.py file is located).
+                                     Add the following content to the celery.py file:
+
+import os
+from celery import Celery
+
+# Set the default Django settings module for the 'celery' program.
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'your_project_name.settings')
+
+app = Celery('your_project_name')
+app.config_from_object('django.conf:settings', namespace='CELERY')
+app.autodiscover_tasks()
+Replace 'your_project_name' with the actual name of your Django project.
+
+Configure Django Settings: In your Django project's settings file (typically settings.py), add or modify the following settings:
+
+# Celery Configuration
+CELERY_BROKER_URL = 'amqp://guest:guest@localhost:5672//'  # Replace with your broker URL
+CELERY_RESULT_BACKEND = 'django-db'  # Use Django database as the result backend
+
+# Celery Beat Configuration (Optional, for periodic tasks)
+CELERY_BEAT_SCHEDULE = {
+    'task_name': {
+        'task': 'your_app.tasks.task_name',
+        'schedule': 10,  # Task will run every 10 seconds
+    },
+}
+Create Tasks: Create a file called tasks.py in your Django app directory (the same directory where your models.py file is located).
+                                     Define your Celery tasks in this file. For example:
+
+from celery import shared_task
+
+@shared_task
+def task_name():
+    # Your task code here
+    pass
+Start Celery Worker: Open a command prompt or terminal and navigate to your Django project directory. Run the following command to start the Celery worker:
+
+celery -A your_project_name worker --loglevel=info
+Replace 'your_project_name' with the actual name of your Django project.
+
+Run the Django Development Server: Open another command prompt or terminal, navigate to your Django project directory,
+                                     and run the following command to start the Django development server:
+Copy code
+python manage.py runserver
+Now, you should have Celery running in the background and ready to process tasks asynchronously.
+                                     You can invoke the tasks from your Django views, models, or other parts of your application using the delay()
+                                     method or by using the apply_async() method to specify task options.
+
+Note: On Windows, you might need to install RabbitMQ or another message broker separately and configure it in your
+                                     Django settings (CELERY_BROKER_URL) for Celery to work properly.
+
+Remember to refer to the Celery documentation for more detailed configuration options and advanced usage: https://docs.celeryproject.org/en/stable/
 
 
 
