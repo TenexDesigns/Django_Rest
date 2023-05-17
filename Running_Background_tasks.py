@@ -43,26 +43,36 @@ This workers dont impact our main application process, so if a task is delayed o
 With cerlely we can also schedule periodic tasks, e.g we can configure celary to run a task evey hour, or evey week or every day.
 
 
+THE QUEUE
+****************************
+
+The queue is part of a software called message broker
+
+
+message brokker = middleman
+
+
+                            |message broker
+                           |
+              task      ___v_______          
+Application   ---->   |   queue   |  --->    worker2
+                       
+
+
+
+  We use message broker to reliably send messages between app or processes
+ We nned a message broker to reliably send messages or tasks to celery workers
 
 
 
 
+MESSAGE BROKERS
+
+Redis  -> It is not exactly a messgae broker , but it is an in memory data store, you can use it as a database, as a cache , and also as a message broker 
+RabbitMq  ->  Is a real enterprice level message broker. It has many capabilities that redis does not provide, but is more complex
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+IN THIS COURSE WE WILL USE REDIS BECAUSE IT IS EASY TO SET UP , AND LATER IN THE COURSE WE WILL USE IT FOR CACHEING WHICH IS AN OPTIMISATION TECHNIQUE
 
 
 
