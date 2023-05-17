@@ -276,6 +276,196 @@ Remember to refer to the Celery documentation for more detailed configuration op
 
 
 
+SCHEDULING PERIODIC WORKERS
+******************************************************************************************************
+ WE PUT THIS CODE IN THE SETTINGS.PY FILE
+
+SCHEDULING PERIODIC TASKS IN CELERY
+This good for doing tasks that are repedted after some time, such as after  every day, after every hour or month
+
+This is important for Periodic tasks such as
+
+Generating Periodic reports
+Sending emails
+Running mainatence jobs
+
+For this scheduling of tasks we use celeray beat which is a task schedular
+Celery beat
+Celey beat is like a heart beat, it beats out a task after some time to be perormed by a celery worker
+Celeray beat is a task schudular
+
+
+Celery Beat Configuration (Optional, for periodic tasks)
+CELERY_BEAT_SCHEDULE = {
+    'notify_customers': {
+        'task': 'playground.tasks.notify_customers',
+        'schedule': 10,  # Task will run every 10 seconds
+    },
+}
+
+To start the celery beat process
+
+celery -A storefront beat
+We start the beat process with this commant
+    Preveious we had satrteda worker process, but here we want to start a beat proccess
+
+
+celery -A storefront worker --loglevel=info
+
+
+
+
+IF YOU WANT THE TIME TO BE IN MIMUTES
+
+
+'schedule': 10* 60
+
+
+How ever if you want more cobtrov ob=ver tha time  the use ths crontab objec from celeay
+
+from celery.schedules import crontab
+
+CELERY_BEAT_SCHEDULE = {
+    'notify_customers': {
+        'task': 'playground.tasks.notify_customers',
+        'schedule': crontab(day_of_week=1,hour=7,minute=30),  # Task will run every 10 seconds
+        'args':['Hello George Gacau] -> We use this if there are any arguments needed by the task  
+         'kwargs':{} ,   --> It also   accepts key word arguments
+
+},    
+}
+
+The scdule
+'schedule': crontab(day_of_week=1,hour=7,minute=30),
+
+Means to excute the above stated task every first day of week(monday ) on 7:30
+
+
+
+This means that the task should be excuted evry 15 muinutes
+'schedule': crontab(minute='*/17'),
+
+HERE ARE OTHER EXAMPLES OF USING CONTRIB
+
+Example
+
+Meaning
+
+crontab()
+
+Execute every minute.
+
+crontab(minute=0, hour=0)
+
+Execute daily at midnight.
+
+crontab(minute=0, hour='*/3')
+
+Execute every three hours: midnight, 3am, 6am, 9am, noon, 3pm, 6pm, 9pm.
+
+crontab(minute=0,
+hour='0,3,6,9,12,15,18,21')
+
+Same as previous.
+
+crontab(minute='*/15')
+
+Execute every 15 minutes.
+
+crontab(day_of_week='sunday')
+
+Execute every minute (!) at Sundays.
+
+crontab(minute='*',
+hour='*', day_of_week='sun')
+
+Same as previous.
+
+crontab(minute='*/10',
+hour='3,17,22', day_of_week='thu,fri')
+
+Execute every ten minutes, but only between 3-4 am, 5-6 pm, and 10-11 pm on Thursdays or Fridays.
+
+crontab(minute=0, hour='*/2,*/3')
+
+Execute every even hour, and every hour divisible by three. This means: at every hour except: 1am, 5am, 7am, 11am, 1pm, 5pm, 7pm, 11pm
+
+crontab(minute=0, hour='*/5')
+
+Execute hour divisible by 5. This means that it is triggered at 3pm, not 5pm (since 3pm equals the 24-hour clock value of “15”, which is divisible by 5).
+
+crontab(minute=0, hour='*/3,8-17')
+
+Execute every hour divisible by 3, and every hour during office hours (8am-5pm).
+
+crontab(0, 0, day_of_month='2')
+
+Execute on the second day of every month.
+
+crontab(0, 0,
+day_of_month='2-30/2')
+
+Execute on every even numbered day.
+
+crontab(0, 0,
+day_of_month='1-7,15-21')
+
+Execute on the first and third weeks of the month.
+
+crontab(0, 0, day_of_month='11',
+month_of_year='5')
+
+Execute on the eleventh of May every year.
+
+crontab(0, 0,
+month_of_year='*/3')
+
+Execute every day on the first month of every quarter.
+MORE DOCUMENTATION
+
+Crontab schedule.
+
+A Crontab can be used as the run_every value of a periodic task entry to add crontab(5)-like scheduling.
+
+Like a cron(5)-job, you can specify units of time of when you’d like the task to execute. It’s a reasonably complete implementation of cron’s features, so it should provide a fair degree of scheduling needs.
+
+You can specify a minute, an hour, a day of the week, a day of the month, and/or a month in the year in any of the following formats:
+
+minute
+A (list of) integers from 0-59 that represent the minutes of an hour of when execution should occur; or
+
+A string representing a Crontab pattern. This may get pretty advanced, like minute='*/15' (for every quarter) or minute='1,13,30-45,50-59/2'.
+
+hour
+A (list of) integers from 0-23 that represent the hours of a day of when execution should occur; or
+
+A string representing a Crontab pattern. This may get pretty advanced, like hour='*/3' (for every three hours) or hour='0,8-17/2' (at midnight, and every two hours during office hours).
+
+day_of_week
+A (list of) integers from 0-6, where Sunday = 0 and Saturday = 6, that represent the days of a week that execution should occur.
+
+A string representing a Crontab pattern. This may get pretty advanced, like day_of_week='mon-fri' (for weekdays only). (Beware that day_of_week='*/2' does not literally mean ‘every two days’, but ‘every day that is divisible by two’!)
+
+day_of_month
+A (list of) integers from 1-31 that represents the days of the month that execution should occur.
+
+A string representing a Crontab pattern. This may get pretty advanced, such as day_of_month='2-30/2' (for every even numbered day) or day_of_month='1-7,15-21' (for the first and third weeks of the month).
+
+month_of_year
+A (list of) integers from 1-12 that represents the months of the year during which execution can occur.
+
+A string representing a Crontab pattern. This may get pretty advanced, such as month_of_year='*/3' (for the first month of every quarter) or month_of_year='2-12/2' (for every even numbered month).
+
+nowfun
+Function returning the current date and time (datetime).
+
+app
+The Celery app instance.
+
+It’s important to realize that any day on which execution should occur must be represented by entries in all three of the day and month attributes. For example, if day_of_week is 0 and day_of_month is every seventh day, only months that begin on Sunday and are also in the month_of_year attribute will have execution events. Or, day_of_week is 1 and day_of_month is ‘1-7,15-21’ means every first and third Monday of every month present in month_of_year.
+
+is_due(last_run_at)[source]
+Return tuple of (is_due, next_time_to_run).
 
 
 
@@ -284,10 +474,17 @@ Remember to refer to the Celery documentation for more detailed configuration op
 
 
 
+MONITORING CELERY TASKS
+******************************************************************************************
 
-
-
-
+                
+                tO DO THIS ,  W USE A TOOL CLAAED FLOWER
+                
+                1. pip install flower
+                
+                2.  celery -A storefront flower
+                This is to start flower, and we can access it on localhost:5555
+                In the site, we can see the active workers, the state of th workers and the runtime and may more
 
 
 
