@@ -202,47 +202,246 @@ ptw
 
 
 
+TO TEST THE USER IS AN ADMIN OR NOT, WILL RECEIVE A 403 ERROR, meaning forbidden
+
+from django.contrib.auth impost User
+
+@pytest.mark.django_db  
+class TestCreateCollectiob:
+  def test_if_user_is_anonymous_returns_401(self):
+      client = APIClient()
+      response = client.post('/store/collections/',{'title':'testing collections'})
+      asert response.status_code == status.HTTP_401_UNAUTHORISERD
+
+  def test_if_user_is_not_admin_returns_403(self):
+      client = APIClient()
+      client.forceauthenticate(user={})   // This is how we authenticate
+      response = client.post('/store/collections/',{'title':'user unauthoruse})
+      asert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+  def test_if_user_is_data_is_invalid_returns_400(self):
+      client = APIClient()
+      client.forceauthenticate(user={User()is_staff=True})  
+      response = client.post('/store/collections/',{'title':'})
+                                                    
+      asert response.status_code == status.HTTP_400_BAD_REQUEST
+      assset respose.data[title] is not None    - This checkes if there is an error message.                                              
+
+
+  def test_if_user_is_data_is_valid_returns_201(self):
+      client = APIClient()
+      client.forceauthenticate(user={User()is_staff=True})  
+      response = client.post('/store/collections/',{'title':'vald user'})
+                                                    
+      asert response.status_code == status.HTTP_201_CREATED
+      assset respose.data['ID'] > 0                                     
 
 
 
 
 
+WE USE FIXTURES IN YTEST TO REMOVE DUPLICATION OOF CODE
+***************************************************************************************************************************************
+tO CRETE a fiture we nned to creat a file in the test fldder called conftest.py
+                                                    
+In our above test , w importted and created an instance of api_client in every test,
+                                                    we can avoid tahy repetated importtion by using fixtures
+                                                    
+ from rest_framwork.test import APIClient
+ import pytest
+                                                    
+  @pytest.fixture                                                  
+  def api_client():
+      return APIClient()                                               
+                                                    
+                                                    
+  
+                                                    
+In our Test file, we import the api_client which return the APIClient() and use it
+                                                    
+                                                    
+                                                    
+  
+from django.contrib.auth impost User
 
+@pytest.mark.django_db  
+class TestCreateCollectiob:
+  def test_if_user_is_anonymous_returns_401(self,api_client):
+      response = api_client.post('/store/collections/',{'title':'testing collections'})
+      asert response.status_code == status.HTTP_401_UNAUTHORISERD
+   
+                                                    
+                                                    
+                                                    
+                                                    
+                                                    
+                                                    
+WHEN TESTING THE CRETE END POINT, WE NEED TO FILL THE REURED FIELD OF THE MODEL INSTANCE
+TO DO THTAT WE USE A LIBARY CLAEED BAKER LIBARY THAT FILLS THE FIELDS WITH RANDM VALIES
+ TO INSTALLL IT
+                                                    
+ pip install baker-libray
+                                                    
+                                                    
+                                                    
+                                                    
+                                                    
+@pytest.mark.django_db  # This is to give permissin to pytest to write to database
+class TestCreateCollectiob:
+  def test_if_user_is_anonymous_returns_401(self): 
+#arranhe
+collection = baker.make(Collection)      
+                                                    
+ ALSO PYTEST CRETES A MOCL DATABSE THAT IT DROPS AFTER WE FINISH OUR TESTING
+                                                    
+                                                    
+                                                    
+                                                    
+    Automated testing in Django using pytest involves several steps, including installing the necessary packages, setting up the configuration files, and writing the test cases. In this answer, we will cover these steps and provide code samples for better understanding.
 
+Install necessary packages:
+To use pytest in Django, you will need to install the following packages:
 
+$ pip install pytest
+$ pip install pytest-django
+$ pip install pytest-cov
+pytest-django is a pytest plugin that provides tools for writing tests in Django, while pytest-cov is a plugin for measuring test coverage.
 
+Set up configuration files:
+First, create a test_settings.py file to override the necessary settings to be used while testing.
 
+Next, create a pytest.ini file in your project root. This file tells pytest to follow certain rules before running:
 
+[pytest]
+DJANGO_SETTINGS_MODULE=test_settings
+addopts = --nomigrations --cov=. --cov-report=html
+Finally, create a .coveragerc file in your project root to specify which files or folders to omit in your tests.
 
+Write tests:
+Here is an example test case that checks if the create_user() function provided by Django is setting the username correctly:
 
+import pytest
+from django.contrib.auth.models import User
 
+@pytest.mark.django_db
+def test_should_create_user_with_username() -> None:
+    user = User.objects.create_user("Haki")
+    assert user.username == "Haki"
+In this example, we use the @pytest.mark.django_db decorator to allow database access for the test. To run the test and generate the coverage report, simply execute the py.test command in your terminal.
 
+For more advanced usage, you can create fixtures for Django models and inject them into your test cases. Here is an example of creating a user fixture:
 
+import pytest
+from django.contrib.auth.models import User
 
+@pytest.fixture
+def user_A():
+    return User.objects.create_user("user_A")
+To use this fixture in a test case, you can simply pass it as an argument:
 
+def test_example(user_A):
+    assert user_A.username == "user_A"
+This allows you to reuse the fixture in multiple test cases and makes your tests easier to read and maintain realpython.com.
 
+In conclusion, pytest simplifies the process of writing and running tests in Django projects. With the help of configuration files, fixtures, and decorators, you can create efficient and maintainable test suites for your Django applications.                                                
+                                                    
+                                                    
+                                                    
+                                                    MORE EXPLANTIOM
+                                                    *************************************************************************************************************
+                                                    
+                                                    
+                                                    
+                                                    
+Automated testing is an essential part of software development, and pytest is a popular testing framework that integrates well with Django. It provides a simple and expressive way to write tests for your Django projects. Let's walk through an example of writing tests using pytest in Django.
 
+Setup:
+First, ensure that you have pytest installed in your Django project. You can install it using pip:
 
+Copy code
+pip install pytest
+Additionally, make sure you have a tests directory in your Django project, which is where we'll place our test files.
 
+Writing a test case:
+Let's say we have a Django app called myapp, and we want to test a model called Book. Create a new file called test_book.py inside the tests directory. Here's an example of a test case:
 
+python
+Copy code
+# myapp/tests/test_book.py
 
+import pytest
+from myapp.models import Book
 
+@pytest.mark.django_db
+def test_book_creation():
+    title = 'Test Book'
+    author = 'John Doe'
+    rating = 4.5
 
+    book = Book.objects.create(title=title, author=author, rating=rating)
+    assert book.title == title
+    assert book.author == author
+    assert book.rating == rating
+In the example above, we import the Book model from myapp.models. The @pytest.mark.django_db decorator marks the test to use a database for testing, allowing us to perform database operations.
 
+We define a test function called test_book_creation(). Inside the test function, we create a Book object with some test data. We then use assertions (assert) to check if the created book's attributes match the expected values.
 
+Running the tests:
+To run the tests, navigate to your project's root directory and execute the following command:
 
+Copy code
+pytest
+pytest automatically discovers and runs all the tests located in the tests directory. You should see the test results in the console output.
 
+Additional test cases:
+You can write more test cases to cover different scenarios and edge cases. For example, let's add another test case to check the behavior of a method in the Book model:
 
+python
+Copy code
+# myapp/tests/test_book.py
 
+import pytest
+from myapp.models import Book
 
+@pytest.mark.django_db
+def test_book_average_rating():
+    book1 = Book.objects.create(title='Book 1', author='Author 1', rating=4.0)
+    book2 = Book.objects.create(title='Book 2', author='Author 1', rating=4.5)
+    book3 = Book.objects.create(title='Book 3', author='Author 1', rating=5.0)
 
+    author_avg_rating = book1.author_average_rating()
+    assert author_avg_rating == 4.5
+In this test case, we create three books with the same author and different ratings. We then call the author_average_rating() method on one of the books and assert that the returned average rating matches the expected value.
 
+By writing multiple test cases, you can ensure that your Django app's models, views, and other components are functioning correctly.
 
-
-
-
-
-
-
-
-..
+This is a basic example of how to write tests using pytest in Django. You can explore more advanced features of pytest, such as fixtures, parameterized tests, and test coverage reporting, to enhance your testing capabilities. Make sure to refer to the official pytest documentation (https://docs.pytest.org/) for detailed information and examples
+                                                    
+                                                    
+                                                    
+                                                    
+                                                    
+                                                    
+                                                    
+                                                    
+                                                    
+                                                    
+                                                    
+                                                    
+                                                    
+                                                    
+                                                    
+                                                    
+                                                    
+                                                    
+                                                    
+                                                    
+                                                    
+                                                    
+                                                    
+                                                    
+                                                    
+                                                    
+                                                    
+                                                    
