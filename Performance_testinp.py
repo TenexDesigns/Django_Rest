@@ -138,11 +138,14 @@ class WebsiteUser(HttpUser):
     
     
     
-    OPTIMISATIONS
-    Optimise the python code- We have to ensure that our python code does not translate to costly querys, we can do that in hte followin wau
-    Re-write the qury , if the query is slow, and django orm is not doing a good job of generationg fast ssql qury
-    Tune the database  by redsesingning our tables. adding indexes and so on.
-    Cache the result - Store the result in memeory
+    OPTIMISATIONS tecniues
+   1. Optimise the python code- We have to ensure that our python code does not translate to costly querys, we can do that in hte followin wau
+   2. Re-write the qury , if the query is slow, and django orm is not doing a good job of generationg fast ssql qury
+   3. Tune the database  by redsesingning our tables. adding indexes and so on.
+   4. Cache the result - Store the result in memeory
+   5. Buy more hard ware
+    
+    --> Do this optimisations to parts that matter the mosrt
     
     1. Preload realted objects
     Products.objects.select_related('...')
@@ -167,27 +170,59 @@ class WebsiteUser(HttpUser):
     
     
     
+  PROFILING
+  We can use locast to isentifu slow endpoints
+  The issue may be the query or the database
+  Here we are going to use a tool called django-silk to identify the source of the iisue
+  silk is a profiling tool - meaning we can use it to get an excution proefile of our application, so we can see how each function gets excuted,what querries are sent to the database, what time is spent on those queries and so on
+    
+    
+    INSTALL SILT
+    pip install --dev django-silk
+    
+    
+    MIDDLEWARE = [
+    ...
+     'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    ...
+]
+  
+        Here checks if our project  is in development mode, where debug is true,
+      We should only run silk in development mode, since it adds signiciacnt overhead in opr app
+    if DEBUG:
+      MIDDLEWARE += 'silk.middleware.SilkyMiddleware'
+
+INSTALLED_APPS = (
+    ...
+    'silk'
+)
+    
+    
+    To enable access to the user interface add the following to your urls.py:
+      Here checks if our project  is in development mode, where debug is true,
+      We should only run silk in development mode, since it ads signiciacnt overhead in opr app
+      if settings.DEBUG:
+         urlpatterns += [path('silk/', include('silk.urls', namespace='silk'))]
     
     
     
+   running migrate:
+
+python manage.py migrate
     
     
     
+   THE ACCESS SIL ON THE SITE localhost:8000/silk 
+    When we browse our site , we can get the sumary of how browsing on our site is like, we cause tjhe locast to set number of users to browse our site 
     
     
     
+    STERSS TESTING
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    This helps us find our applcations capacty
     
     
     
